@@ -62,7 +62,7 @@
 			</div>
 
 			<ul class="nav nav-pills nav-justified navbar-static-top">
-				<li class="active"><a href="/todaygye/list">회원리스트</a></li>
+				<li class="active">회원리스트</li>
 			</ul>
 		</div>
 		<!-- header end -->

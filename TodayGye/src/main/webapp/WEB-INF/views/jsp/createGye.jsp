@@ -11,6 +11,7 @@
 	if (resultMap != null && userId != null){
 		System.out.println("list.jsp : Session ok!!");
 		System.out.println("세션 id = " + userId);
+		System.out.println("resultMap = " + resultMap.get("NAME"));
 	}
 	else
 		System.out.println("list.jsp : Session invalidated!!");
@@ -55,7 +56,6 @@ function checkForm(){
 		$('#money').focus();
 		return false;
 	}
-	alert("통과");
 	document.createForm.submit();
 }		
 </script>

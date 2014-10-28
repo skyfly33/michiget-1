@@ -50,6 +50,7 @@ public class MemberController  implements MessageSourceAware{
 		
 		if (session.getAttribute("loginCheck") == null) {
 			System.out.println("세션 없음");
+			//session.setAttribute("reason", "memberListAll");
 			ModelAndView mav;
 			mav = new ModelAndView("login/loginForm");
 			return mav;
@@ -136,7 +137,7 @@ public class MemberController  implements MessageSourceAware{
 			userInfo2.setACCOUNT("0");
 		}*/
 		
-		mav = new ModelAndView("main");
+		mav = new ModelAndView(new RedirectView("/todaygye/"));
 						
 		return mav;
 	}

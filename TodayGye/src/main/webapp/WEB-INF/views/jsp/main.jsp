@@ -60,7 +60,7 @@
 						<div class="carousel-caption">
 							<h2>Hello TodayGye!</h2>
 							<P>The time on the server is ${serverTime}.</P>
-							<form action="/todaygye/view.do?cmd=loginForm" method="get">
+							<form action="/todaygye/login/loginForm.do" method="get">
 								<ul>
 									<li><input class="btn btn-primary" type="submit"
 										value="LoginForm" /></li>
@@ -76,7 +76,7 @@
 						<div class="carousel-caption">
 							<h2>Hello TodayGye!</h2>
 							<P>The time on the server is ${serverTime}.</P>
-							<form action="/todaygye/view.do?cmd=loginForm" method="get">
+							<form action="/todaygye/login/loginForm.do" method="get">
 								<ul>
 									<li><input class="btn btn-primary" type="submit"
 										value="LoginForm" /></li>
@@ -92,7 +92,7 @@
 						<div class="carousel-caption">
 							<h2>Hello TodayGye!</h2>
 							<P>The time on the server is ${serverTime}.</P>
-							<form action="/todaygye/loginform" method="get">
+							<form action="/todaygye/login/loginForm.do" method="get">
 								<ul>
 									<li><input class="btn btn-primary" type="submit"
 										value="LoginForm" /></li>

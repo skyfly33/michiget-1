@@ -52,7 +52,11 @@ public class LoginController  implements MessageSourceAware{
 		
 		ModelAndView mav;
 		int check_return = 0;
-		
+		if(request.getParameter("orgLogin") != null){
+			System.out.println("orgLogin = " + request.getParameter("orgLogin"));
+			if (request.getParameter("orgLogin").equals("a"))
+				session.setAttribute("reason", null);
+		}
 		CommonMap resultMap = loginsv.loginCheck(new CommonMap(map));
 		System.out.println("로그인 체크 값 = " + resultMap.get("LOGINCHECK"));
 		if (resultMap.get("LOGINCHECK").toString().equals("true")) {
@@ -62,11 +66,22 @@ public class LoginController  implements MessageSourceAware{
 			session.setAttribute("name"     , resultMap.get("NAME"));
 			session.setAttribute("loginCheck"    , resultMap.get("LOGINCHECK"));
 			session.setMaxInactiveInterval(300);
+			if(session.getAttribute("reason") != null){
+				System.out.println("reason = " + session.getAttribute("reason"));
+				if(session.getAttribute("reason").equals("createForm")){
+					mav = new ModelAndView(new RedirectView("/todaygye/gye/createForm.do"));
+					return mav;
+				}
+				if(session.getAttribute("reason").equals("gyeListAll")){
+					mav = new ModelAndView(new RedirectView("/todaygye/gye/listAll.do"));
+					return mav;
+				}
+			}
 			mav = new ModelAndView("login/loginsuccess");
-		
+			
 		} else {
 			resultMap.put("userId", map.get("userId"));			
-			mav = new ModelAndView(new RedirectView("loginForm.do"), resultMap);
+			mav = new ModelAndView(new RedirectView("loginForm.do"));
 		}
 		
 	
@@ -80,6 +95,20 @@ public class LoginController  implements MessageSourceAware{
 		}
 		logger.info("테스트로 받아와본것 : " + map);
 		mav.addObject("loginInfo", map);	*/	
+		return mav;
+	}
+	
+	@RequestMapping("loginForm")
+	public ModelAndView goLogInForm(HttpServletRequest request, HttpSession session, HttpServletResponse response, @RequestParam Map<String, Object> map) throws Exception {
+		System.out.println("loginForm 요청 성공");
+		
+		
+		ModelAndView mav;
+		
+		//세션 무효화
+		
+		logger.info("테스트로 받아와본것 : " + map);
+		mav = new ModelAndView("login/loginForm");
 		return mav;
 	}
 	

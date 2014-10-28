@@ -84,24 +84,25 @@ import com.michiget.todaygye.vo.GyeInfo;
 		}
 		
 		// 로그인폼 처리
-				@RequestMapping("createForm")
-				public ModelAndView goCreateForm(HttpServletRequest request, HttpSession session, HttpServletResponse response, @ModelAttribute GyeInfo gyeInfo, @RequestParam Map<String, Object> map) throws Exception {
-					System.out.println("createForm 요청 성공");
-					System.out.println("loginCheck = " + session.getAttribute("loginCheck"));
-					if (session.getAttribute("loginCheck") == null) {
-						System.out.println("세션 없음");
-						ModelAndView mav;
-						mav = new ModelAndView("login/loginForm");
-						return mav;
-					}else {
-					
-				
-					ModelAndView mav = new ModelAndView("createGye");
-					
-					
-					return mav;
-					}
-				}
+		@RequestMapping("createForm")
+		public ModelAndView goCreateForm(HttpServletRequest request, HttpSession session, HttpServletResponse response, @ModelAttribute GyeInfo gyeInfo, @RequestParam Map<String, Object> map) throws Exception {
+			System.out.println("createForm 요청 성공");
+			System.out.println("loginCheck = " + session.getAttribute("loginCheck"));
+			if (session.getAttribute("loginCheck") == null) {
+				System.out.println("세션 없음");
+				session.setAttribute("reason", "createForm");
+				ModelAndView mav;
+				mav = new ModelAndView("login/loginForm");
+				return mav;
+			}else {
+			
+		
+			ModelAndView mav = new ModelAndView("createGye");
+			
+			
+			return mav;
+			}
+		}
 		
 		@RequestMapping("listAll")
 		public ModelAndView getGyeListAll(HttpServletRequest request, HttpSession session, HttpServletResponse response, @ModelAttribute GyeInfo gyeInfo, @RequestParam Map<String, Object> map) throws Exception {
@@ -110,6 +111,7 @@ import com.michiget.todaygye.vo.GyeInfo;
 			
 			if (session.getAttribute("loginCheck") == null) {
 				System.out.println("세션 없음");
+				session.setAttribute("reason", "gyeListAll");
 				ModelAndView mav;
 				mav = new ModelAndView("login/loginForm");
 				return mav;

@@ -97,6 +97,7 @@
 		<div class="modal-body">
 			<form action="/todaygye/login/loginCheck.do" method="POST"
 				onsubmit="return formCheck();">
+				<input type="hidden" name="orgLogin" value="a">
 				<table>
 
 					<tr>
