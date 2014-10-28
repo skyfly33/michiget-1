@@ -35,6 +35,15 @@
 <script src="<%=request.getContextPath() %>/resources/assets/js/bootstrap-typeahead.js"></script>
 <script src="<%=request.getContextPath() %>/resources/assets/js/bootstrap-affix.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath() %>resources/js/formCheck.js"></script>
+<script type="text/javascript">
+	function page_move(s_page){
+		var f=document.paging;
+		f.page.value = s_page;
+		f.action = "/todaygye/member/listAll.do";
+		f.method="post";
+		f.submit();
+	}
+</script>
 <title>TodayGye - loginsuccess</title>
 </head>
 <body>
@@ -89,34 +98,35 @@
 		<div id="footer">
 			<div 
 				class="page_member">
-				<ul>
+				<form name="paging">
+				<input type="hidden" name="page" />
 					<c:if test="${page != 1 && page != 0}">
-						<a href="/todaygye/member/listAll.do?page=${firstPage}">처음</a>
+						<a href="javascript:page_move('${firstPage}');">처음</a>
 					</c:if>
 					<c:if test="${block != 1 && block !=0}">
-						<a href="/todaygye/member/listAll.do?page=${startPage -1}">이전</a>
+						<a href="javascript:page_move('${startPage -1}');">이전</a>
 					</c:if>
 					<c:forEach step="1" begin="${startPage }" end="${endPage }" var="pagePrint">
 								<c:if test="${pagePrint !=0 }">
 								<c:choose>
 									
 									<c:when test="${pagePrint == page}">
-									<a href="/todaygye/member/listAll.do?page=${pagePrint}"><B>${pagePrint }</B></a>&nbsp;
+									<a href="javascript:page_move('${pagePrint}');"><B>${pagePrint }</B></a>&nbsp;
 									</c:when>
 									<c:otherwise>
-									<a href="/todaygye/member/listAll.do?page=${pagePrint}">${pagePrint }</a>&nbsp;
+									<a href="javascript:page_move('${pagePrint}');">${pagePrint }</a>&nbsp;
 									</c:otherwise>
 									
 								</c:choose>
 								</c:if>
 					</c:forEach>
 					<c:if test="${block != totalBlock && totalBlock !=0}">
-						<a href="/todaygye/member/listAll.do?page=${endPage +1}">다음</a>
+						<a href="javascript:page_move('${endPage +1}');">다음</a>
 					</c:if>
 					<c:if test="${page != pageCnt && pageCnt != 0}">
-						<a href="/todaygye/member/listAll.do?page=${pageCnt}">마지막</a>
+						<a href="javascript:page_move('${pageCnt}');">마지막</a>
 					</c:if>
-				</ul>
+					</form>
 			</div>
 		</div>
 		<!-- footer end -->
