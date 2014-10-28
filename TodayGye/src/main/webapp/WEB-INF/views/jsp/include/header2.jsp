@@ -1,5 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ page import="com.michiget.todaygye.utils.*"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -48,7 +51,7 @@
 				<a class="brand" href="/todaygye">TodayGye</a>
 				<div class="nav-collapse collapse">
 					<ul class="nav">
-						<li class="active"><a href="/todaygye/view.do?cmd=createGye">계 만들기</a></li>
+						<li class="active"><a href="/todaygye/gye/createForm.do">계 만들기</a></li>
 						<li><a href="/todaygye/gye/listAll.do">계 목록</a></li>
 						<li><a href="#contact">Contact</a></li>
 						<li class="dropdown"><a href="#" class="dropdown-toggle"
@@ -67,8 +70,15 @@
 						<input class="span2" type="text" placeholder="Search">
 						<button type="submit" class="btn">Search</button>
 						<a href="#join" class="btn" role="button" data-toggle="modal">Join</a>
+						<c:choose>
+						<c:when test="${loginCheck != 'true' }">
+						
 						<a href="#login" class="btn" role="button" data-toggle="modal">Login</a>
-						<a href="/todaygye/logout" class="btn" role="button">Logout</a>
+						</c:when>
+						<c:otherwise>
+						<a href="/todaygye/login/logOut.do" class="btn" role="button">Logout</a>
+						</c:otherwise>
+						</c:choose>
 					</form>
 				</div>
 				<!--/.nav-collapse -->

@@ -60,8 +60,8 @@ public class LoginController  implements MessageSourceAware{
 			session.setAttribute("resultMap", resultMap);
 			session.setAttribute("userId"   , resultMap.get("USERID"));
 			session.setAttribute("name"     , resultMap.get("NAME"));
-			session.setAttribute("check"    , resultMap.get("LOGINCHECK"));
-			
+			session.setAttribute("loginCheck"    , resultMap.get("LOGINCHECK"));
+			session.setMaxInactiveInterval(300);
 			mav = new ModelAndView("login/loginsuccess");
 		
 		} else {
@@ -80,6 +80,25 @@ public class LoginController  implements MessageSourceAware{
 		}
 		logger.info("테스트로 받아와본것 : " + map);
 		mav.addObject("loginInfo", map);	*/	
+		return mav;
+	}
+	
+	@RequestMapping("logOut")
+	public ModelAndView logOut(HttpServletRequest request, HttpSession session, HttpServletResponse response, @RequestParam Map<String, Object> map) throws Exception {
+		System.out.println("logOut 요청 성공");
+		
+		
+		ModelAndView mav;
+		
+		//세션 무효화
+		if(session.getAttribute("loginCheck")!=null){
+			session.invalidate();
+			logger.info("세션무효");
+		}else{
+			logger.info("세션없음");
+		}
+		logger.info("테스트로 받아와본것 : " + map);
+		mav = new ModelAndView(new RedirectView("/todaygye/"));
 		return mav;
 	}
 

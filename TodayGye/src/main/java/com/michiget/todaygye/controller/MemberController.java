@@ -48,6 +48,13 @@ public class MemberController  implements MessageSourceAware{
 		System.out.println("memberList 요청 성공");
 		
 		
+		if (session.getAttribute("loginCheck") == null) {
+			System.out.println("세션 없음");
+			ModelAndView mav;
+			mav = new ModelAndView("login/loginForm");
+			return mav;
+		}else {
+		
 		ModelAndView mav;
 		int totalCnt = 0;
 		CommonList resultList = new CommonList();
@@ -112,6 +119,7 @@ public class MemberController  implements MessageSourceAware{
 		logger.info("테스트로 받아와본것 : " + map);
 		mav.addObject("loginInfo", map);	*/	
 		return mav;
+		}
 	}
 	
 	@RequestMapping("join")

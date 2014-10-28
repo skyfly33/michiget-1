@@ -2,12 +2,14 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page import="com.michiget.todaygye.utils.*"%>
-<%@ page session="true"%>
 <%
 	CommonMap resultMap = (CommonMap) session.getAttribute("resultMap");
 	String userId = session.getAttribute("userId").toString();
-	if (resultMap != null && userId != null)
+	String loginCheck = session.getAttribute("loginCheck").toString();
+	if (resultMap != null && userId != null){
 		System.out.println("list.jsp : Session ok!!");
+		System.out.println("세션 id = " + userId);
+	}
 	else
 		System.out.println("list.jsp : Session invalidated!!");
 %>
@@ -54,7 +56,7 @@
 		<div id="header">
 			<div class="page-header">
 				<h1>
-					회원 리스트&nbsp;&nbsp;<small>현재 님으로 로그인 하셨습니다.
+					회원 리스트&nbsp;&nbsp;<small>현재 ${userId}님으로 로그인 하셨습니다.
 					</small>
 				</h1>
 			</div>

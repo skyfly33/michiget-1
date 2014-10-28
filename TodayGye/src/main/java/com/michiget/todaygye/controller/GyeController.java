@@ -46,7 +46,13 @@ import com.michiget.todaygye.vo.GyeInfo;
 		@RequestMapping("create")
 		public ModelAndView insertGye(HttpServletRequest request, HttpSession session, HttpServletResponse response, @ModelAttribute GyeInfo gyeInfo, @RequestParam Map<String, Object> map) throws Exception {
 			System.out.println("url 요청 성공");
-			
+			System.out.println("loginCheck = " + session.getAttribute("loginCheck"));
+			if (session.getAttribute("loginCheck") == null) {
+				System.out.println("세션 없음");
+				ModelAndView mav;
+				mav = new ModelAndView("login/loginForm");
+				return mav;
+			}else {
 			System.out.println("opencheck = " + gyeInfo.getOpenCheck());
 			System.out.println("gyename = " + gyeInfo.getGyeName());
 			System.out.println("persons = " + gyeInfo.getPersons());
@@ -74,12 +80,40 @@ import com.michiget.todaygye.vo.GyeInfo;
 			logger.info("테스트로 받아와본것 : " + map);
 			mav.addObject("loginInfo", map);	*/	
 			return mav;
+			}
 		}
+		
+		// 로그인폼 처리
+				@RequestMapping("createForm")
+				public ModelAndView goCreateForm(HttpServletRequest request, HttpSession session, HttpServletResponse response, @ModelAttribute GyeInfo gyeInfo, @RequestParam Map<String, Object> map) throws Exception {
+					System.out.println("createForm 요청 성공");
+					System.out.println("loginCheck = " + session.getAttribute("loginCheck"));
+					if (session.getAttribute("loginCheck") == null) {
+						System.out.println("세션 없음");
+						ModelAndView mav;
+						mav = new ModelAndView("login/loginForm");
+						return mav;
+					}else {
+					
+				
+					ModelAndView mav = new ModelAndView("createGye");
+					
+					
+					return mav;
+					}
+				}
 		
 		@RequestMapping("listAll")
 		public ModelAndView getGyeListAll(HttpServletRequest request, HttpSession session, HttpServletResponse response, @ModelAttribute GyeInfo gyeInfo, @RequestParam Map<String, Object> map) throws Exception {
 			System.out.println("getGyeList 요청 성공");
+			System.out.println("session loginCheck = " + session.getAttribute("loginCheck"));
 			
+			if (session.getAttribute("loginCheck") == null) {
+				System.out.println("세션 없음");
+				ModelAndView mav;
+				mav = new ModelAndView("login/loginForm");
+				return mav;
+			}else {
 			CommonList resultList = new CommonList();
 			//ArrayList<GyeInfo> resultList = commonDao.select("gye.listAll");
 			ModelAndView mav;
@@ -145,6 +179,8 @@ import com.michiget.todaygye.vo.GyeInfo;
 			logger.info("테스트로 받아와본것 : " + map);
 			mav.addObject("loginInfo", map);	*/	
 			return mav;
+			}
+			
 		}
 
 	

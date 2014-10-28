@@ -5,8 +5,12 @@
 <%
 	CommonMap resultMap = (CommonMap) session.getAttribute("resultMap");
 	String userId = session.getAttribute("userId").toString();
-	if (resultMap != null && userId != null)
+	String loginCheck = session.getAttribute("loginCheck").toString();
+	if (resultMap != null && userId != null){
 		System.out.println("list.jsp : Session ok!!");
+		System.out.println("세션 id = " + userId);
+		System.out.println("loginCheck = " + loginCheck);
+	}
 	else
 		System.out.println("list.jsp : Session invalidated!!");
 %>

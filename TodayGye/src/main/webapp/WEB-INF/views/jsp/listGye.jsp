@@ -2,15 +2,18 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ page import="com.michiget.todaygye.utils.*"%>
 <%-- <%@ page import="com.michiget.beans.UserInfo" %> --%>
-
 <%
-	/* UserInfo userInfo = (UserInfo) session.getAttribute("userInfo");
-	String loginId = session.getAttribute("loginId").toString();
-	if (userInfo != null && loginId != null)
-		System.out.println("session ok!!");
+	CommonMap resultMap = (CommonMap) session.getAttribute("resultMap");
+	String userId = session.getAttribute("userId").toString();
+	String loginCheck = session.getAttribute("loginCheck").toString();
+	if (resultMap != null && userId != null){
+		System.out.println("list.jsp : Session ok!!");
+		System.out.println("세션 id = " + userId);
+	}
 	else
-		System.out.println("session invalidated!!!!"); */
+		System.out.println("list.jsp : Session invalidated!!");
 
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
