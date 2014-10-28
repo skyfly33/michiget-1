@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN"
+       "C:\develop\Workspace3\TodayGye\src\main\webapp\WEB-INF\dtd\tiles-config_2_1.dtd">
+       
+<tiles-definitions>
+	<!-- 결과값 리턴 -->
+	<definition name="createGye" template="/WEB-INF/views/jsp/createGye.jsp"></definition>
+	<!-- definition name="loginForm" template="/WEB-INF/views/jsp/login/loginForm.jsp"></definition-->
+	
+</tiles-definitions>

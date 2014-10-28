@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="stats">
+<!--
+	<cache size="1024" />
+-->
+
+	<select id="excelDaily" parameterType="nice" resultType="nice">
+		SELECT	@RN:=@RN+1		AS ROWNUM  	
+			,	TB1.TR_NUM
+		FROM	(	SELECT * FROM uds_msg
+					UNION ALL
+					SELECT * FROM uds_log)	TB1
+			,	(SELECT @RN:=0) 			TB2				
+	</select>
+
+
+	<select id="excelMonth" parameterType="nice" resultType="nice">
+		SELECT	@RN:=@RN+1		AS ROWNUM  	
+			,	TB1.TR_NUM
+		FROM	(	SELECT * FROM uds_msg
+					UNION ALL
+					SELECT * FROM uds_log)	TB1
+			,	(SELECT @RN:=0) 			TB2				
+	</select>	
+	
+	
+	<select id="reportList" parameterType="nice" resultType="nice">	
+	
+	<if test="excelmonth != null and excelmonth != ''">			
+		<![CDATA[ 
+		 SELECT TB.*
+		     ,  CONCAT(CAST(IF(TB.TOT_FAIL_CNT = 0,0,ROUND((TB.TOT_FAIL_CNT/TB.TOT_CNT)*100,2)) AS CHAR),'%') FAIL_PER
+		 FROM (  SELECT  DATE_FORMAT(RPAD(TB.DATE,8,'0'),'%Y-%m')			DATE
+		             ,   IFNULL(UDS.TOT_CNT, 0)                             TOT_CNT
+		             ,   IFNULL(UDS.MMS_CNT, 0)                             MMS_CNT
+		             ,   IFNULL(UDS.AUTO_LMS_CNT, 0)                        AUTO_LMS_CNT
+		             ,   IFNULL(UDS.AUTO_MMS_CNT, 0)                        AUTO_MMS_CNT
+		             ,   IFNULL(UDS.MANUAL_LMS_CNT, 0)                      MANUAL_LMS_CNT
+		             ,   IFNULL(UDS.MANUAL_MMS_CNT, 0)                      MANUAL_MMS_CNT
+		             ,   IFNULL(UDS.TOT_FAIL_CNT,0)                         TOT_FAIL_CNT     
+		         FROM(  SELECT  CAST(TB4.DT AS CHAR)  DATE
+		                FROM    (SELECT  CONCAT(SUBSTR(#{search_date_start},1,4),LPAD((N0 + N1 + N2),2,'0')) as DT
+		                         FROM    (SELECT 0 AS N0
+		                                  UNION 
+		                                  SELECT 1
+		                                  UNION
+		                                  SELECT 2) TB1 CROSS JOIN (SELECT 1 AS N1
+		                                                            UNION
+		                                                            SELECT 4) TB2 CROSS JOIN (SELECT 0 AS N2
+		                                                                                      UNION
+		                                                                                      SELECT 6) TB3) TB4
+		                WHERE TB4.DT >= DATE_FORMAT(#{search_date_start},'%Y%m')
+		                AND   TB4.DT <= DATE_FORMAT(#{search_date_end},'%Y%m')
+		                ORDER BY TB4.DT) TB
+		                LEFT OUTER JOIN(  SELECT  UDS_GROUP.DATE        DATE
+		                                      ,   SUM(TOT_CNT)          TOT_CNT
+		                                      ,   SUM(MMS_CNT)          MMS_CNT
+		                                      ,   SUM(AUTO_LMS_CNT)     AUTO_LMS_CNT
+		                                      ,   SUM(AUTO_MMS_CNT)     AUTO_MMS_CNT
+		                                      ,   SUM(MANUAL_LMS_CNT)   MANUAL_LMS_CNT
+		                                      ,   SUM(MANUAL_MMS_CNT)   MANUAL_MMS_CNT
+		                                      ,   SUM(TOT_FAIL_CNT)     TOT_FAIL_CNT		                                    
+		                                  FROM( SELECT *
+                                            FROM (  SELECT  CAST(DATE_FORMAT(UDS1.ISSUE_DT,'%Y%m') AS CHAR)  DATE
+                                                        ,   0             TOT_CNT
+                                                        ,   0             MMS_CNT
+                                                        ,   0             AUTO_LMS_CNT
+                                                        ,   0             AUTO_MMS_CNT
+                                                        ,   0                   MANUAL_LMS_CNT
+                                                        ,   0                  MANUAL_MMS_CNT
+                                                        ,   CASE WHEN TR_NUM IS NOT NULL THEN 1
+                                                            ELSE 0 END TOT_FAIL_CNT
+                                                    FROM (  SELECT * FROM uds_log
+                                                            WHERE CINFO = 'home'
+                                                            AND DATE_FORMAT(uds_log.ISSUE_DT,'%Y%m') >= DATE_FORMAT(#{search_date_start},'%Y%m')
+		                                              		AND DATE_FORMAT(uds_log.ISSUE_DT,'%Y%m') <= DATE_FORMAT(#{search_date_end},'%Y%m')
+                                                            GROUP BY TR_NUM, CMID, UMID WITH ROLLUP
+                                                            UNION ALL
+                                                            SELECT * FROM uds_msg 
+                                                            WHERE CINFO = 'home'
+                                                            AND DATE_FORMAT(uds_msg.ISSUE_DT,'%Y%m') >= DATE_FORMAT(#{search_date_start},'%Y%m')
+		                                              		AND DATE_FORMAT(uds_msg.ISSUE_DT,'%Y%m') <= DATE_FORMAT(#{search_date_end},'%Y%m') 
+                                                            GROUP BY TR_NUM, CMID, UMID WITH ROLLUP )UDS1
+                                            WHERE TR_NUM IS NOT NULL AND CMID IS NULL AND UMID IS NULL AND CALL_STATUS != 6600
+                                            GROUP BY TR_NUM) UDS1                                                  
+                                            UNION ALL
+                                            SELECT CAST(DATE_FORMAT(UDS.ISSUE_DT,'%Y%m') AS CHAR)  DATE
+		                                            ,  CASE WHEN MSG_TYPE = 5 THEN 1
+		                                               ELSE 0 END                                          TOT_CNT
+		                                            ,  CASE WHEN MSG_TYPE = 5 AND UDS.FAX_FILE IS NOT NULL AND UDS.RESEND_STATUS = '1' THEN 1
+		                                               ELSE 0 END                                                             MMS_CNT
+		                                            ,  CASE WHEN MSG_TYPE = 5 AND UDS.RESEND_STATUS = '2' AND UDS.FAX_FILE IS NULL THEN 1
+		                                               ELSE 0 END                                                             AUTO_LMS_CNT
+		                                            ,  CASE WHEN MSG_TYPE = 5 AND UDS.RESEND_STATUS = '2' AND UDS.FAX_FILE IS NOT NULL THEN 1
+		                                               ELSE 0 END                                                             AUTO_MMS_CNT   
+		                                            ,  CASE WHEN MSG_TYPE = 5 AND UDS.RESEND_STATUS = '3' AND UDS.FAX_FILE IS NULL THEN 1  
+		                                               ELSE 0 END                                                             MANUAL_LMS_CNT
+		                                            ,  CASE WHEN MSG_TYPE = 5 AND UDS.RESEND_STATUS = '3' AND UDS.FAX_FILE IS NOT NULL THEN 1  
+		                                               ELSE 0 END                                                             MANUAL_MMS_CNT 
+		                                            ,  0 TOT_FAIL_CNT
+		                                        FROM (SELECT * FROM uds_log
+		                                              WHERE CINFO = 'home'
+		                                              AND DATE_FORMAT(uds_log.ISSUE_DT,'%Y%m') >= DATE_FORMAT(#{search_date_start},'%Y%m')
+		                                              AND DATE_FORMAT(uds_log.ISSUE_DT,'%Y%m') <= DATE_FORMAT(#{search_date_end},'%Y%m')      
+		                                              UNION ALL
+		                                              SELECT * FROM uds_msg 
+		                                              WHERE CINFO = 'home'
+		                                              AND DATE_FORMAT(uds_msg.ISSUE_DT,'%Y%m') >= DATE_FORMAT(#{search_date_start},'%Y%m')
+		                                              AND DATE_FORMAT(uds_msg.ISSUE_DT,'%Y%m') <= DATE_FORMAT(#{search_date_end},'%Y%m')     
+		                                              )UDS      
+		                                      )UDS_GROUP
+		                                  GROUP BY UDS_GROUP.DATE
+		                                )UDS
+		                                ON UDS.DATE = TB.DATE
+		       )TB
+		]]>
+    </if>
+    
+    <if test="exceldaily != null and exceldaily != '' ">
+    	<![CDATA[
+    	 SELECT TB.*
+		     ,  CONCAT(CAST(IF(TB.TOT_FAIL_CNT = 0,0,ROUND((TB.TOT_FAIL_CNT/TB.TOT_CNT)*100,2)) AS CHAR),'%') FAIL_PER
+		 FROM (  SELECT  DATE_FORMAT(TB.DATE,'%Y-%m-%d')                    DATE
+		             ,   IFNULL(UDS.TOT_CNT, 0)                             TOT_CNT
+		             ,   IFNULL(UDS.MMS_CNT, 0)                             MMS_CNT
+		             ,   IFNULL(UDS.AUTO_LMS_CNT, 0)                        AUTO_LMS_CNT
+		             ,   IFNULL(UDS.AUTO_MMS_CNT, 0)                        AUTO_MMS_CNT
+		             ,   IFNULL(UDS.MANUAL_LMS_CNT, 0)                      MANUAL_LMS_CNT
+		             ,   IFNULL(UDS.MANUAL_MMS_CNT, 0)                      MANUAL_MMS_CNT
+		             ,   IFNULL(UDS.TOT_FAIL_CNT,0)  TOT_FAIL_CNT     
+		         FROM(  SELECT  DATE_FORMAT(TB4.DT,'%Y%m%d')  DATE
+		                FROM    (SELECT  CONCAT(SUBSTR(#{search_date_start},1,6),LPAD((N0 + N1 + N2),2,'0')) as DT
+		                         FROM    (SELECT 0 AS N0
+		                                  UNION 
+		                                  SELECT 1
+		                                  UNION
+		                                  SELECT 2
+		                                  UNION
+		                                  SELECT 3) TB1 CROSS JOIN (SELECT 0 AS N1
+		                                                            UNION
+		                                                            SELECT 4
+		                                                            UNION
+		                                                            SELECT 8
+		                                                            UNION
+		                                                            SELECT 12) TB2 CROSS JOIN (SELECT 0 AS N2
+		                                                                                       UNION
+		                                                                                       SELECT 16) TB3) TB4 CROSS JOIN (SELECT DATE_FORMAT(CONCAT(SUBSTR(#{search_date_start},1,6),'01'),'%Y-%m-%d')            AS ST_DT
+		                                                                                                                            , LAST_DAY(DATE_FORMAT(CONCAT(SUBSTR(#{search_date_start},1,6),'01'),'%Y-%m-%d'))  AS ED_DT) A
+		                WHERE   DATE_FORMAT(TB4.DT,'%Y%m%d') BETWEEN A.ST_DT AND A.ED_DT
+		                AND DATE_FORMAT(TB4.DT,'%Y%m%d') >= #{search_date_start}
+		                AND DATE_FORMAT(TB4.DT,'%Y%m%d') <= #{search_date_end}
+		                ORDER   BY TB4.DT) TB
+		                LEFT OUTER JOIN(  SELECT  UDS_GROUP.DATE        DATE
+		                                      ,   SUM(TOT_CNT)          TOT_CNT
+		                                      ,   SUM(MMS_CNT)          MMS_CNT
+		                                      ,   SUM(AUTO_LMS_CNT)     AUTO_LMS_CNT
+		                                      ,   SUM(AUTO_MMS_CNT)     AUTO_MMS_CNT
+		                                      ,   SUM(MANUAL_LMS_CNT)   MANUAL_LMS_CNT
+		                                      ,   SUM(MANUAL_MMS_CNT)   MANUAL_MMS_CNT
+		                                      ,   SUM(TOT_FAIL_CNT)     TOT_FAIL_CNT
+		                                  FROM(   SELECT *
+	                                             FROM (  SELECT  CAST(DATE_FORMAT(UDS1.ISSUE_DT,'%Y-%m-%d') AS CHAR)  DATE
+	                                                         ,   0             TOT_CNT
+	                                                         ,   0             MMS_CNT
+	                                                         ,   0             AUTO_LMS_CNT
+	                                                         ,   0             AUTO_MMS_CNT
+	                                                         ,   0             MANUAL_LMS_CNT
+	                                                         ,   0             MANUAL_MMS_CNT
+	                                                         ,   CASE WHEN TR_NUM IS NOT NULL THEN 1
+	                                                             ELSE 0 END TOT_FAIL_CNT
+	                                                     FROM (  SELECT * FROM uds_log
+	                                                             WHERE CINFO = 'home'
+	                                                             AND uds_log.ISSUE_DT >= #{search_date_start}
+	                                                             AND uds_log.ISSUE_DT <= #{search_date_end}
+	                                                             GROUP BY TR_NUM, CMID, UMID WITH ROLLUP
+	                                                             UNION ALL
+	                                                             SELECT * FROM uds_msg 
+	                                                             WHERE CINFO = 'home'
+	                                                             AND uds_msg.ISSUE_DT >= #{search_date_start}
+	                                                             AND uds_msg.ISSUE_DT <= #{search_date_end}
+	                                                             GROUP BY TR_NUM, CMID, UMID WITH ROLLUP )UDS1
+	                                                     WHERE TR_NUM IS NOT NULL AND CMID IS NULL AND UMID IS NULL AND CALL_STATUS != 6600
+	                                                 GROUP BY TR_NUM) UDS1                                                  
+	                                             UNION ALL
+	                                             SELECT CAST(DATE_FORMAT(UDS.ISSUE_DT,'%Y-%m-%d') AS CHAR)  DATE
+	                                                 ,  CASE WHEN MSG_TYPE = 5 THEN 1
+	                                                    ELSE 0 END                                          TOT_CNT
+	                                                 ,  CASE WHEN MSG_TYPE = 5 AND UDS.FAX_FILE IS NOT NULL AND UDS.RESEND_STATUS = '1' THEN 1
+	                                                    ELSE 0 END                                                             MMS_CNT
+	                                                 ,  CASE WHEN MSG_TYPE = 5 AND UDS.RESEND_STATUS = '2' AND UDS.FAX_FILE IS NULL THEN 1
+	                                                    ELSE 0 END                                                             AUTO_LMS_CNT
+	                                                 ,  CASE WHEN MSG_TYPE = 5 AND UDS.RESEND_STATUS = '2' AND UDS.FAX_FILE IS NOT NULL THEN 1
+	                                                    ELSE 0 END                                                             AUTO_MMS_CNT   
+	                                                 ,  CASE WHEN MSG_TYPE = 5 AND UDS.RESEND_STATUS = '3' AND UDS.FAX_FILE IS NULL THEN 1  
+	                                                    ELSE 0 END                                                             MANUAL_LMS_CNT
+	                                                 ,  CASE WHEN MSG_TYPE = 5 AND UDS.RESEND_STATUS = '3' AND UDS.FAX_FILE IS NOT NULL THEN 1  
+	                                                    ELSE 0 END                                                             MANUAL_MMS_CNT 
+	                                                 , 0 TOT_FAIL_CNT                                             
+	                                             FROM (SELECT * FROM uds_log
+	                                                   WHERE CINFO = 'home'
+	                                                   AND uds_log.ISSUE_DT >= #{search_date_start}
+	                                                   AND uds_log.ISSUE_DT <= #{search_date_end}      
+	                                                   UNION ALL
+	                                                   SELECT * FROM uds_msg 
+	                                                   WHERE CINFO = 'home'
+	                                                   AND uds_msg.ISSUE_DT >= #{search_date_start}
+	                                                   AND uds_msg.ISSUE_DT <= #{search_date_end} )UDS    
+	                                             )UDS_GROUP                                         
+		                                  GROUP BY UDS_GROUP.DATE
+		                                )UDS
+		                                ON UDS.DATE = DATE_FORMAT(TB.DATE,'%Y-%m-%d')
+		       )TB
+		]]>
+    </if>
+    
+	</select>
+	
+</mapper>

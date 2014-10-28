@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="template">
+<!--
+	<cache size="1024" />
+-->
+	<select id="templist" parameterType="nice" resultType="nice">
+		SELECT 	TB1.*
+			,	@RN 			AS TOTCNT
+		FROM
+			(SELECT @RN:=@RN+1 	AS ROWNUM
+				,	TB.*
+	   		 FROM
+	  				(	SELECT	TB1.IMG_URL
+		  					,	TB1.REG_ID
+		  					,	TB1.REG_DT
+		  					,	TB1.USE_YN
+		  					,	TB1.DES
+		  					,	TB1.BARCODE2_Y
+		  					,	TB1.BARCODE2_X
+		  					,	TB1.BARCODE2_Y_S
+		  					,	TB1.BARCODE2_X_S
+		  					,	TB1.BARCODE1_Y
+		  					,	TB1.BARCODE1_X
+		  					,	TB1.BARCODE1_Y_S
+		  					,	TB1.BARCODE1_X_S
+		  					,	TB1.IMG_CD
+		  					,	TB1.TEMPLATE_CD
+						FROM	cc_template_info	TB1
+							,	(SELECT @RN:=0)		TB2
+						WHERE 1=1
+						<if test="search_imgCd != null and search_imgCd != ''">		
+					 	AND IMG_CD = #{search_imgCd}
+					 	</if>
+						ORDER	BY TB1.TEMPLATE_CD
+	     			)TB
+	     	)TB1
+	     <![CDATA[
+	     WHERE ROWNUM <= #{end} AND ROWNUM >= #{start}
+	 	 ]]>
+	 	
+	</select>
+	
+	<select id="isduplicate" parameterType="nice" resultType="nice">
+		SELECT	COUNT(*)				AS IMG_CNT
+  		FROM	cc_template_info
+ 		WHERE	IMG_CD = #{img_cd}	
+	</select>
+	
+	<insert id="registerimg" parameterType="nice" >
+		INSERT INTO cc_template_info (		IMG_CD
+										<if test="bar1_X != null and bar1_X != ''">		
+										,	BARCODE1_X
+										</if>
+										<if test="bar1_Y != null and bar1_Y != ''">		
+										,	BARCODE1_Y
+										</if>
+										<if test="bar1_X_S != null and bar1_X_S != ''">		
+										,	BARCODE1_X_S
+										</if>
+										<if test="bar1_Y_S != null and bar1_Y_S != ''">		
+										,	BARCODE1_Y_S
+										</if>
+										<if test="bar2_X != null and bar2_X != ''">	
+										,	BARCODE2_X
+										</if>
+										<if test="bar2_X != null and bar2_X != ''">		
+										,	BARCODE2_Y
+										</if>
+										<if test="bar2_X_S != null and bar2_X_S != ''">	
+										,	BARCODE2_X_S
+										</if>
+										<if test="bar2_X_S != null and bar2_X_S != ''">		
+										,	BARCODE2_Y_S
+										</if>
+										,	DES
+										,	USE_YN
+										,	REG_DT
+										,	REG_ID
+										,	IMG_URL	
+									 )	
+		VALUES (		#{img_cd}	
+					<if test="bar1_X != null and bar1_X != ''">				
+					,	#{bar1_X}
+					</if>		
+					<if test="bar1_Y != null and bar1_Y != ''">				
+					,	#{bar1_Y}					
+					</if>
+					<if test="bar1_X_S != null and bar1_X_S != ''">				
+					,	#{bar1_X_S}
+					</if>		
+					<if test="bar1_Y_S != null and bar1_Y_S != ''">				
+					,	#{bar1_Y_S}					
+					</if>
+					<if test="bar2_X != null and bar2_X != ''">		
+					,	#{bar2_X}				
+					</if>
+					<if test="bar2_Y != null and bar2_Y != ''">		
+					,	#{bar2_Y}					
+					</if>
+					<if test="bar2_X_S != null and bar2_X_S != ''">		
+					,	#{bar2_X_S}				
+					</if>
+					<if test="bar2_Y_S != null and bar2_Y_S != ''">		
+					,	#{bar2_Y_S}					
+					</if>
+					,	#{mcaption}
+					,	'Y'
+					,	#{now}
+					,	#{reg_id}
+					,	#{filePath}
+		)
+	</insert>
+	
+	<select id="templistdtl" parameterType="nice" resultType="nice">
+		SELECT 	TEMPLATE_CD
+			,   IMG_CD
+    		,   BARCODE1_X
+    		,   BARCODE1_Y
+    		,   BARCODE1_X_S
+    		,   BARCODE1_Y_S
+    		,   BARCODE2_X
+    		,   BARCODE2_Y
+    		,   BARCODE2_X_S
+    		,   BARCODE2_Y_S
+    		,   DES
+    		,   IMG_URL
+		FROM cc_template_info
+		WHERE IMG_CD = #{img_cd}
+	</select>
+	
+	<update id="templistmodify">
+		UPDATE 	cc_template_info
+		SET		IMG_CD		=	#{img_cd}	
+			<if test="bar1_X != null and bar1_X != ''">		
+			,	BARCODE1_X	=	#{bar1_X}
+			</if>
+			<if test="bar1_Y != null and bar1_Y != ''">		
+			,	BARCODE1_Y	=	#{bar1_Y}
+			</if>
+			<if test="bar1_X_S != null and bar1_X_S != ''">		
+			,	BARCODE1_X_S	=	#{bar1_X_S}
+			</if>
+			<if test="bar1_Y_S != null and bar1_Y_S != ''">		
+			,	BARCODE1_Y_S	=	#{bar1_Y_S}
+			</if>
+			<if test="bar2_X != null and bar2_X != ''">	
+			,	BARCODE2_X	=	#{bar2_X}
+			</if>
+			<if test="bar2_X != null and bar2_X != ''">		
+			,	BARCODE2_Y	=	#{bar2_Y}
+			</if>
+			<if test="bar2_X_S != null and bar2_X_S != ''">	
+			,	BARCODE2_X_S	=	#{bar2_X_S}
+			</if>
+			<if test="bar2_X_S != null and bar2_X_S != ''">		
+			,	BARCODE2_Y_S	=	#{bar2_Y_S}
+			</if>
+			,	DES			=	#{mcaption}
+			,	IMG_URL		=	#{filePath}
+		WHERE IMG_CD = #{origin_img_cd}
+	</update>
+	
+</mapper>

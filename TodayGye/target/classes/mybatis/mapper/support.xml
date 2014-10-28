@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="support">
+	<!-- <cache size="1024" /> -->
+	<select id="searchList" parameterType="nice" resultType="nice">
+		SELECT TB.*
+		    ,  @RN TOTCNT
+		FROM ( SELECT @RN:= @RN+1  ROWNUM
+		          ,  TB.*
+		          ,  IFNULL(CD_TB.CD_NM,'발송중') CD_NM
+		        FROM (SELECT @RN:=0) CNT
+		        	,(SELECT REQ_TB.TR_NUM
+		                   , REQ_TB.ISSUE_DT
+		                   , UDS_TB.SEND_DATE
+		                   , UDS_TB.SEND_TIME
+		                   , UDS_TB.CALL_STATUS
+		                   , REQ_TB.SENDER_NM
+		                   , REQ_TB.SENDER_TEL_NO
+		                   , REQ_TB.ORD_NO
+		                   , REQ_TB.TR_MSG
+		                   , REQ_TB.TAKER_NM
+		                   , REQ_TB.TAKER_TEL_NO  
+		                   , REQ_TB.IMG_CD
+		                   , REQ_TB.BARCODE
+		                   , REQ_TB.CHARGE_AMT
+		                   , REQ_TB.EFFECTIVE_TERM                
+		                   , UDS_TB.LMS_CNT
+		                   , UDS_TB.MMS_CNT
+		                   <![CDATA[ 
+		                   , IF(DATE_FORMAT(ADDDATE(REQ_TB.ISSUE_DT, INTERVAL 3 MONTH),'%Y%m%d') <= DATE_FORMAT(NOW(),'%Y%m%d'),'Y','N') PRIVACY
+		               		]]>
+		                FROM (SELECT *
+		                      FROM cc_reqmms
+		                      WHERE 1=1
+		                      <if test="search_date_start != null and search_date_start != ''">
+		                      <![CDATA[ 
+		                      AND ISSUE_DT >= #{search_date_start}
+		                      ]]>
+		                      </if>
+		                      <if test="search_date_end != null and search_date_end != ''">
+						      <![CDATA[
+		                      AND ISSUE_DT <= #{search_date_end}
+		                      ]]>
+		                      </if>
+		                      <if test="SEND_NAME_VAL != null and SEND_NAME_VAL != ''">
+							  AND SENDER_NM = #{SEND_NAME_VAL}            
+							  </if> 
+							  <if test="SEND_PHONE_VAL != null and SEND_PHONE_VAL != ''">
+							  AND SENDER_TEL_NO = #{SEND_PHONE_VAL}            
+							  </if> 
+							  <if test="DEST_NAME_VAL != null and DEST_NAME_VAL != ''">
+							  AND TAKER_NM = #{DEST_NAME_VAL}            
+							  </if> 
+							  <if test="DEST_PHONE_VAL != null and DEST_PHONE_VAL != ''">
+							  AND TAKER_TEL_NO = #{DEST_PHONE_VAL}            
+							  </if> 
+		                      <if test="BARCODE_VAL != null and BARCODE_VAL != ''">
+							  AND BARCODE = #{BARCODE_VAL}            
+							  </if>            
+							  <if test="search_type != null and search_type != ''">
+							  AND SENDSTAT = #{search_type}
+							  </if>
+		                     ) REQ_TB LEFT OUTER JOIN (SELECT *
+		                                               FROM (SELECT *
+		                                                     FROM (SELECT TB1.TR_NUM
+		                                                                , TB1.CMID
+		                                                                , TB1.ISSUE_DT
+		                                                                , CAST(DATE_FORMAT(TB1.REPORT_TIME, '%Y-%m-%d') AS CHAR) AS SEND_DATE
+		      		                                                      , CAST(DATE_FORMAT(TB1.REPORT_TIME, '%H:%i:%s') AS CHAR) AS SEND_TIME
+		                                                                , TB1.CALL_STATUS
+		                                                                , TB1.SEND_NAME
+		                                                                , TB1.SEND_PHONE
+		                                                                , TB1.DEST_NAME
+		                                                                , TB1.DEST_PHONE
+		                                                                , TB1.BARCODE
+		                                                                , SUM(CASE WHEN FAX_FILE IS NULL THEN 1
+		                                                                       ELSE 0 END )LMS_CNT
+		                                                                , SUM(CASE WHEN FAX_FILE IS NOT NULL THEN 1
+		                                                                       ELSE 0 END )MMS_CNT
+		                                                  			  , TB1.SEND_TIME AS RECV_TIME
+		                                                           FROM (   (SELECT uds_msg.* FROM uds_msg uds_msg
+		                                                                      WHERE CINFO = 'home'
+		                                                                      <if test="search_date_start != null and search_date_start != ''">
+		                      												  <![CDATA[ 
+		                                                                      AND ISSUE_DT >= #{search_date_start}
+		                                                                      ]]>
+		                      												  </if>
+		                      												  <if test="search_date_end != null and search_date_end != ''">
+						     												  <![CDATA[
+		                                                                      AND ISSUE_DT <= #{search_date_end}
+		                                                                      ]]>
+		                      												  </if> 
+		                      												  <if test="search_type != null and search_type != ''">
+		                                                                      AND STATUS = #{search_type}
+		                                                                      </if>
+		                                                                      <if test="search_option != null and search_option != ''">
+																              AND ${search_option} = #{input_value}
+																              </if>
+		                                                                      )
+		                                                                    UNION ALL
+		                                                                    (SELECT uds_log.* FROM uds_log uds_log
+		                                                                      WHERE CINFO = 'home'
+		                                                                      <if test="search_date_start != null and search_date_start != ''">
+		                      												  <![CDATA[
+		                                                                      AND ISSUE_DT >= #{search_date_start}
+		                                                                      ]]>
+		                      												  </if>
+		                      												  <if test="search_date_end != null and search_date_end != ''">
+						     												  <![CDATA[
+		                                                                      AND ISSUE_DT <= #{search_date_end}
+		                                                                      ]]>
+		                      												  </if>
+		                      												  <if test="search_type ==  P">
+		                                                                      AND STATUS = 1
+		                                                                      </if>
+		                                                                      <if test="search_type ==  F">
+		                                                                      AND STATUS = 2 AND CALL_STATUS != 6600
+		                                                                      </if>
+		                                                                      <if test="search_type ==  Y">
+		                                                                      AND STATUS = 2 AND CALL_STATUS = 6600
+		                                                                      </if>
+							                                                  <if test="search_option != null and search_option != '' and input_value != null and input_value != ''">
+																              AND ${search_option} = #{input_value}
+																              </if>
+		                                                                      )
+		                                                                ) TB1
+		                                                            GROUP BY TB1.TR_NUM, TB1.CMID WITH ROLLUP) TB2
+		                                                      WHERE TB2.TR_NUM IS NOT NULL
+		                                                      ORDER BY TR_NUM DESC, CMID ASC) UDS_TB
+		                                                WHERE CMID IS NULL) UDS_TB ON REQ_TB.TR_NUM = UDS_TB.TR_NUM
+		                                                ORDER BY REQ_TB.TR_NUM DESC ) TB
+		      
+		      LEFT OUTER JOIN  (SELECT *
+		                        FROM cc_cd
+		                        WHERE GR_CD = 'A001') CD_TB
+   			  ON CD_TB.CD = TB.CALL_STATUS ) TB    
+		WHERE 1=1
+		<if test="end != null and end != ''">
+		<![CDATA[ 
+	    AND TB.ROWNUM <= #{end} 
+	    ]]>        
+	 	</if>
+	 	<if test="start != null and start != ''">
+	   	<![CDATA[           
+	   	AND	TB.ROWNUM >= #{start}                               
+	    ]]>        
+	 	</if>    
+	</select>
+		
+	<select id="searchdtlpop" parameterType="nice" resultType="nice">
+		SELECT TB1.TR_NUM
+		     , '홈플러스'AS COMPANY
+		     , TB1.CHARGE_AMT
+		     , TB1.BARCODE
+		     , CAST(CONCAT(DATE_FORMAT(TB1.ISSUE_DT,'%Y-%m-%d'),' ~ ',DATE_ADD(TB1.ISSUE_DT, interval TB1.EFFECTIVE_TERM day)) AS CHAR ) AS EXPIRY_DATE
+		     , TB1.SENDER_NM
+		     , TB2.SEND_PHONE
+		     , TB1.TAKER_NM
+		     , TB2.DEST_PHONE
+		     , CAST(CASE	WHEN TB2.STATUS  = '0' OR TB2.STATUS IS NULL  THEN  '대기'
+							WHEN TB2.STATUS  = '1'                        THEN  '발송중'
+			           	    WHEN TB2.STATUS  = '2'                        THEN  (CASE WHEN  TB2.CALL_STATUS =  6600  THEN CONCAT('발송 완료[',TB2.CALL_STATUS,']')
+		                                                                              ELSE                                CONCAT('발송 실패[',TB2.CALL_STATUS,']')
+			       											                      END)
+		             END AS CHAR) AS SENDSTAT
+		  FROM (SELECT * FROM cc_reqmms WHERE TR_NUM = #{tr_num}) TB1 LEFT OUTER JOIN (SELECT *
+		                                                                                 FROM (SELECT * FROM uds_msg WHERE TR_NUM = #{tr_num}
+		                                                                                       UNION ALL
+		                                                                                       SELECT * FROM uds_log WHERE TR_NUM = #{tr_num}) TB2
+		                                                                                 ORDER BY CMID DESC limit 1) TB2
+		                                                                           ON TB1.TR_NUM = TB2.TR_NUM
+	</select>
+	
+	<select id="searchsendstat" parameterType="nice" resultType="nice">
+	<![CDATA[ 
+		SELECT COALESCE(SUM(TB2.MMS_CNT)	, 0)	AS TOT_MMS_CNT
+		     , COALESCE(SUM(TB2.SMS_CNT)	, 0)	AS TOT_SMS_CNT
+		     , COALESCE(SUM(TB2.MMS_SUC_CNT), 0)	AS TOT_MMS_SUC_CNT
+		     , COALESCE(SUM(TB2.SMS_SUC_CNT), 0)	AS TOT_SMS_SUC_CNT
+		     , COALESCE(SUM(TB2.MMS_FAI_CNT), 0)	AS TOT_MMS_FAI_CNT
+		     , COALESCE(SUM(TB2.SMS_FAI_CNT), 0)	AS TOT_SMS_FAI_CNT
+		 FROM (SELECT CASE WHEN TB1.FAX_FILE IS NOT NULL                               THEN  1
+		                   ELSE                                                              0
+		               END AS MMS_CNT
+		            , CASE WHEN TB1.FAX_FILE IS NULL                                   THEN  1
+		                   ELSE                                                              0
+		               END AS SMS_CNT
+		            , CASE WHEN TB1.FAX_FILE IS NOT NULL AND TB1.CALL_STATUS = 6600    THEN  1
+		                   ELSE                                                              0
+		               END AS MMS_SUC_CNT
+		            , CASE WHEN TB1.FAX_FILE IS NULL AND TB1.CALL_STATUS = 6600        THEN  1
+		                   ELSE                                                              0
+		               END AS SMS_SUC_CNT
+		            , CASE WHEN TB1.FAX_FILE IS NOT NULL AND TB1.CALL_STATUS != 6600   THEN  1
+		                   ELSE                                                              0
+		               END AS MMS_FAI_CNT
+		            , CASE WHEN TB1.FAX_FILE IS NULL AND TB1.CALL_STATUS != 6600       THEN  1
+		                   ELSE                                                              0
+		               END AS SMS_FAI_CNT
+		       FROM ( SELECT *
+		              FROM uds_msg
+		              WHERE ISSUE_DT >= DATE_FORMAT(#{search_date_start},'%Y%m%d')
+	                  AND   ISSUE_DT <= DATE_FORMAT(#{search_date_end},'%Y%m%d')
+		              AND CINFO = 'home'
+		              UNION ALL
+		              SELECT *
+		              FROM uds_log
+		              WHERE ISSUE_DT >= DATE_FORMAT(#{search_date_start},'%Y%m%d')
+	                  AND   ISSUE_DT <= DATE_FORMAT(#{search_date_end},'%Y%m%d')
+	                  AND CINFO = 'home'
+	                  ) TB1)  TB2
+    ]]>     
+	</select>
+
+
+</mapper>

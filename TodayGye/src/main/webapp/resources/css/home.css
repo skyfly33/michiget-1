@@ -1,0 +1,25 @@
+@CHARSET "UTF-8";
+
+.item > img {
+	height: 550px;
+	width: 1000px;
+	margin: 0 auto;
+}
+
+.span4 > img {
+	margin-left: 70px;
+	height: 170px;
+	width: 170px;
+}
+
+h1 {
+	color: #fff;
+}
+body{width:100%;}
+
+
+.page_gye, .page_member {text-align:center;}
+
+
+
+.gye_table{margin:0 auto;}

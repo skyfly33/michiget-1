@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="cacheEnabled"		value="true" />
+		<setting name="useGeneratedKeys"	value="true" />
+		<setting name="defaultExecutorType"	value="REUSE" />
+		<!-- 배치 처리를 위한 설정 값 등록 -->
+		<setting name="defaultExecutorType" value="BATCH" />
+	<!--
+		<setting name="multipleResultSetsEnabled" value="true" /> 
+		<setting  name="useColumnLabel" value="true" /> 
+		<setting name="defaultStatementTimeout" value="25000" /> 
+	-->
+	</settings>
+
+	<typeAliases>
+		<typeAlias type="com.michiget.todaygye.utils.CommonMap" 		alias="nice" />		<!-- DTO를 대신할 MAP선언 -->
+		<typeAlias type="com.michiget.todaygye.vo.GyeInfo" 		alias="gyeInfo" />
+		<typeAlias type="com.michiget.todaygye.vo.UserInfo2" 		alias="UserInfo2" />
+	</typeAliases>
+	
+	<!--
+	<typeHandlers>
+		<typeHandler javaType="String" jdbcType="VARCHAR" handler="com.skp.nk.common.CryptoTypeHandler" />
+	</typeHandlers>
+	-->
+	
+	<mappers>
+		<!-- 이부붙에 쿼리가 들어있는 xml파일의 경로를 넣어주세요 -->
+		<mapper resource="mybatis/mapper/login.xml"		/>
+		<mapper resource="mybatis/mapper/stats.xml"		/>
+		<mapper resource="mybatis/mapper/member.xml"	/>
+		<mapper resource="mybatis/mapper/template.xml"	/>
+		<mapper resource="mybatis/mapper/gye.xml"		/>
+		<mapper resource="mybatis/mapper/support.xml"	/>
+	</mappers>
+</configuration>

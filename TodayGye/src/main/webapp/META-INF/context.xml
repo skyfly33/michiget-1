@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context path="/nbo" debug="0" docBase="" allowLinking="false">
+    <Resource name="jdbc.nicebo" auth="Container" type="javax.sql.DataSource"
+                    maxActive="5" maxIdle="2" maxWait="10000" defaultTransactionIsolation="READ_COMMITTED" validationQuery="Select 1 from dual"
+                    username="xowlsdl7" password="tj3777" driverClassName="oracle.jdbc.driver.OracleDriver"
+                    url="jdbc:oracle:thin:@localhost:1521:orcl" />
+</Context>

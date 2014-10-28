@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans	xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xmlns:jee="http://www.springframework.org/schema/jee"
+		xmlns:p="http://www.springframework.org/schema/p" 
+		xmlns:tx="http://www.springframework.org/schema/tx"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:ehcache-spring="http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring"
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		xmlns:task="http://www.springframework.org/schema/task"
+		xsi:schemaLocation="http://www.springframework.org/schema/jee
+							http://www.springframework.org/schema/jee/spring-jee.xsd
+							http://www.springframework.org/schema/aop 
+							http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+							http://www.springframework.org/schema/beans
+							http://www.springframework.org/schema/beans/spring-beans.xsd
+							http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring
+							http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd
+							http://www.springframework.org/schema/tx
+							http://www.springframework.org/schema/tx/spring-tx.xsd
+							http://www.springframework.org/schema/context
+							http://www.springframework.org/schema/context/spring-context.xsd
+							http://www.springframework.org/schema/task
+							http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	
+	<!-- DataSource JNDI name -->
+	<jee:jndi-lookup id="dataSource" jndi-name="jdbc.nicebo" resource-ref="true" />
+	
+	 <!-- ================================================== 
+			SpringMVC 설정
+			HandlerMapping : Client의 요청에 맞는 Controller를 찾아준다
+			methodParamNames : Controller의 어떤 메소드가 실행 할지 알려준다 
+	 =================================================== -->
+	 <bean name="handlerMapping" class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
+	 
+	 <bean name="methodNameResolver" class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver">
+	 	<property name="paramName" value="cmd"/>
+	 </bean>
+	 
+	 
+	 <bean
+		class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"
+		p:alwaysUseFullPath="true" />
+		
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"
+		p:alwaysUseFullPath="true" />
+
+	
+
+	
+	 
+	 <!-- DataSource Logging DataSource 참조(ref)와 모두 관계 있음. -->
+	<bean id="logDataSource" class="net.sf.log4jdbc.Log4jdbcProxyDataSource">
+		<constructor-arg ref="dataSource" />
+		<property name="logFormatter">
+			<bean class="net.sf.log4jdbc.tools.Log4JdbcCustomFormatter">
+				<property name="loggingType" value="MULTI_LINE" />
+				<property name="sqlPrefix" value="[SQL]" />
+			</bean>
+		</property>
+	</bean>
+	 
+	 <!-- ================================================== 
+		TilesConfigurer - 타일즈 설정파일을 등록
+		UrlBasedViewResolver - Tiles설정된 View를 알려주는 ViewResolver
+		
+		위의 두개를 bean으로 등록
+	 =================================================== -->
+	<bean name="tilesConfigurer" class="org.springframework.web.servlet.view.tiles2.TilesConfigurer">
+		<property name="definitions">
+			<list>
+				<value>/WEB-INF/setting/tilesConfig.xml</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean name="UrlBasedViewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.tiles2.TilesView"/>
+	</bean>
+	
+	<bean name="/view.do" class="tiles.controller.TilesController"/>
+	
+	<!-- MyBatis -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="logDataSource" />
+		<property name="configLocation" value="classpath:mybatis/configuration.xml" />
+	</bean>
+
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactory" />
+	</bean>
+	
+	<context:component-scan base-package="com.michiget.todaygye" />
+	
+	<bean id="commonDao"	class="com.michiget.todaygye.dao.impl.CommonDAO"	p:sqlSessionFactory-ref="sqlSessionFactory" />			<!-- 공통 DAO -->
+		
+		
+</beans>
