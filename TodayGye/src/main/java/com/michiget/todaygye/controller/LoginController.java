@@ -52,38 +52,45 @@ public class LoginController  implements MessageSourceAware{
 		
 		ModelAndView mav;
 		int check_return = 0;
-		if(request.getParameter("orgLogin") != null){
+		if(request.getParameter("orgLogin") != null){ //로그인 버튼을 눌렀을때 
 			System.out.println("orgLogin = " + request.getParameter("orgLogin"));
 			if (request.getParameter("orgLogin").equals("a"))
 				session.setAttribute("reason", null);
 		}
 		CommonMap resultMap = loginsv.loginCheck(new CommonMap(map));
-		System.out.println("로그인 체크 값 = " + resultMap.get("LOGINCHECK"));
-		if (resultMap.get("LOGINCHECK").toString().equals("true")) {
-			logger.info("########################### 세션 값 : " + resultMap);	
-			session.setAttribute("resultMap", resultMap);
-			session.setAttribute("userId"   , resultMap.get("USERID"));
-			session.setAttribute("name"     , resultMap.get("NAME"));
-			session.setAttribute("loginCheck"    , resultMap.get("LOGINCHECK"));
-			session.setMaxInactiveInterval(300);
-			if(session.getAttribute("reason") != null){
-				System.out.println("reason = " + session.getAttribute("reason"));
-				if(session.getAttribute("reason").equals("createForm")){
-					mav = new ModelAndView(new RedirectView("/todaygye/gye/createForm.do"));
-					return mav;
+	//System.out.println("resultMap = " + resultMap);
+		if(resultMap != null){ //입력한 아이디로 조회되는 값이 있다면
+			System.out.println("로그인 체크 값 = " + resultMap.get("LOGINCHECK"));
+			if (resultMap.get("LOGINCHECK").toString().equals("true")) { //비밀번호 일치시
+				logger.info("########################### 세션 값 : " + resultMap);	
+				session.setAttribute("resultMap"     , resultMap);
+				session.setAttribute("userId"        , resultMap.get("USERID"));
+				session.setAttribute("name"          , resultMap.get("NAME"));
+				session.setAttribute("loginCheck"    , resultMap.get("LOGINCHECK"));
+				session.setMaxInactiveInterval(300);
+				if(session.getAttribute("reason") != null){
+					System.out.println("reason = " + session.getAttribute("reason"));
+					if(session.getAttribute("reason").equals("createForm")){
+						mav = new ModelAndView(new RedirectView("/todaygye/gye/createForm.do"));
+						return mav;
+					}
+					if(session.getAttribute("reason").equals("gyeListAll")){
+						mav = new ModelAndView(new RedirectView("/todaygye/gye/listAll.do"));
+						return mav;
+					}
 				}
-				if(session.getAttribute("reason").equals("gyeListAll")){
-					mav = new ModelAndView(new RedirectView("/todaygye/gye/listAll.do"));
-					return mav;
-				}
+				mav = new ModelAndView("login/loginsuccess");
+				
+			} else { //비밀번호 불일치시
+				resultMap.put("loginId", map.get("loginId"));			
+				mav = new ModelAndView("login/loginForm");
+				mav.addObject("loginCheck", resultMap.get("LOGINCHECK"));
 			}
-			mav = new ModelAndView("login/loginsuccess");
-			
-		} else {
-			resultMap.put("userId", map.get("userId"));			
-			mav = new ModelAndView(new RedirectView("loginForm.do"));
+		}else { //존재하는 아이디 없을시
+			//resultMap.put("loginId", map.get("loginId"));			
+			mav = new ModelAndView("login/loginForm");
+			mav.addObject("loginCheck", "fail");
 		}
-		
 	
 		
 		//세션 무효화
@@ -109,6 +116,7 @@ public class LoginController  implements MessageSourceAware{
 		
 		logger.info("테스트로 받아와본것 : " + map);
 		mav = new ModelAndView("login/loginForm");
+		//mav.addObject("loginCheck", "form");
 		return mav;
 	}
 	

@@ -42,7 +42,7 @@ import com.michiget.todaygye.vo.GyeInfo;
 			this.messageSource = messageSource;
 		}
 		
-		// 로그인폼 처리
+		// 계 개설하기
 		@RequestMapping("create")
 		public ModelAndView insertGye(HttpServletRequest request, HttpSession session, HttpServletResponse response, @ModelAttribute GyeInfo gyeInfo, @RequestParam Map<String, Object> map) throws Exception {
 			System.out.println("url 요청 성공");
@@ -83,7 +83,7 @@ import com.michiget.todaygye.vo.GyeInfo;
 			}
 		}
 		
-		// 로그인폼 처리
+		// 계 개설폼 요청
 		@RequestMapping("createForm")
 		public ModelAndView goCreateForm(HttpServletRequest request, HttpSession session, HttpServletResponse response, @ModelAttribute GyeInfo gyeInfo, @RequestParam Map<String, Object> map) throws Exception {
 			System.out.println("createForm 요청 성공");

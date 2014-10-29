@@ -1,5 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ page import="com.michiget.todaygye.utils.*"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -24,9 +27,16 @@
 <script src="<%=request.getContextPath() %>/resources/assets/js/bootstrap-affix.js"></script>
 <link rel="stylesheet" href="<%=request.getContextPath() %>/resources/css/home.css" />
 <script type="text/javascript" src="<%=request.getContextPath() %>resources/js/formCheck.js"></script>
+
 <title>TodayGye - loginForm</title>
 </head>
 <body>
+<c:if test="${loginCheck == 'fail' }">
+	<script>alert("존재하지 않는  아이디 입니다.")</script>
+</c:if>
+<c:if test="${loginCheck == 'false' }">
+	<script>alert("잘못된 비밀번호 입니다.")</script>
+</c:if>
 <%@include file="/WEB-INF/views/jsp/include/header2.jsp" %>
 	<div class="jumbotron">
 		<div class="container">

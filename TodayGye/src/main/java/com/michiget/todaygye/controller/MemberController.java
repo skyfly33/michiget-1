@@ -42,7 +42,7 @@ public class MemberController  implements MessageSourceAware{
 		this.messageSource = messageSource;
 	}
 	
-	// 로그인폼 처리
+	// 
 	@RequestMapping("listAll")
 	public ModelAndView memberList(HttpServletRequest request, HttpSession session, HttpServletResponse response, @RequestParam Map<String, Object> map) throws Exception {
 		System.out.println("memberList 요청 성공");
@@ -122,8 +122,8 @@ public class MemberController  implements MessageSourceAware{
 		return mav;
 		}
 	}
-	
-	@RequestMapping("join")
+	// 회원가입 요청
+	@RequestMapping("join") 
 	public ModelAndView memberInsert(HttpServletRequest request, HttpSession session, HttpServletResponse response, @ModelAttribute UserInfo2 userInfo2, @RequestParam Map<String, Object> map) throws Exception {
 		System.out.println("memberInsert 요청 성공");
 		

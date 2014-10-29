@@ -99,7 +99,7 @@ public class CommonDAO extends SqlSessionDaoSupport implements ICommonDAO{
 		
 		return returnList;
 	}
-	@Override
+	
 	public int getTotalCnt(String query) throws SQLException {
 		return (Integer) getSqlSession().selectOne(query);
 	}
