@@ -22,6 +22,7 @@ import com.michiget.todaygye.dao.ICommonDAO;
 import com.michiget.todaygye.service.IGyeService;
 import com.michiget.todaygye.service.ILoginService;
 import com.michiget.todaygye.utils.CommonMap;
+import com.michiget.todaygye.utils.CommonUtil;
 import com.michiget.todaygye.vo.GyeInfo;
 
 
@@ -49,6 +50,8 @@ public class LoginController  implements MessageSourceAware{
 		
 		System.out.println("요청 id = " + map.get("loginId"));
 		System.out.println("요청 pw = " + map.get("pass"));
+		map.put("pass", CommonUtil.Encode((String)map.get("pass")));
+		System.out.println("인코딩 된 pw = " + map.get("pass"));
 		
 		ModelAndView mav;
 		int check_return = 0;

@@ -23,6 +23,7 @@ import com.michiget.todaygye.service.ILoginService;
 import com.michiget.todaygye.service.IMemberService;
 import com.michiget.todaygye.utils.CommonList;
 import com.michiget.todaygye.utils.CommonMap;
+import com.michiget.todaygye.utils.CommonUtil;
 import com.michiget.todaygye.vo.UserInfo2;
 
 @Controller
@@ -131,6 +132,7 @@ public class MemberController  implements MessageSourceAware{
 		ModelAndView mav;
 		userInfo2.setREGIP(request.getRemoteAddr());
 		userInfo2.setUSERGRADE("1");
+		userInfo2.setPASS(CommonUtil.Encode(userInfo2.getPASS()));
 		membersv.insert(userInfo2);
 		
 		/*if(userInfo2.getACCOUNT()==null){
